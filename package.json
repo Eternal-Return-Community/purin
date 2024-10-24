@@ -1,13 +1,13 @@
 {
   "name": "purin",
   "module": "index.js",
+  "version": "1.0.1",
   "type": "commonjs",
   "scripts": {
     "build": "pkg .",
     "start": "node index.js"
   },
   "dependencies": {
-    "lzma": "^2.3.2",
     "steam-user": "^5.2.0"
   },
   "bin": "index.js",

@@ -65,16 +65,20 @@ class ERBS {
     async #account() {
         const response = await this.#client('GET', '/lobby/enterRepeat/?supportLanguage=2&searchTime=0')
 
-        if (response?.user.lv >= 21) {
+        if (response?.user?.lv >= 21) {
             exit('Sua conta já está no nível 21+. Use uma conta nova para pode usar o script.')
         }
     }
 
     async #tutorial() {
         for (let i = 0; i < 13; i++) {
-            await this.#client('POST', '/users/tutorial/result', String(i + 1))
+
+            const key = i + 1;
+            if (key == 9 || key == 10) continue;
+
+            await this.#client('POST', '/users/tutorial/result', key)
         }
-        console.log('Recompensas: 3 Personagens: Yuki, Hyejin e Eva, 48.920 A-coin, 7 Dias de Boost de XP, 3 Chaves, 2 Skin Data Box e 2 Research Center Data Box.')
+        console.log('-> Tutorial finalizado! \nRecompensas: 3 Personagens: Yuki, Hyejin e Eva, 51.680 A-coin, 7 Dias de Boost de XP, 3 Chaves, 2 Skin Data Box e 2 Research Center Data Box.\n')
     }
 
     async #leveling() {
@@ -95,17 +99,17 @@ class ERBS {
                 "rk": 1,
             }))
 
-            if (response?.rst.userLevel === 21) {
-                console.log(' -> Leveling finalizado! Level atual da conta: 21');
-                break;
+
+            if (response?.userLevel === 21) {
+                exit('-> Leveling finalizado! Level atual da conta: 21')
             }
         }
     }
 
     async start() {
-        this.#account()
-        this.#tutorial()
-        this.#leveling()
+        await this.#account()
+        await this.#tutorial()
+        await this.#leveling()
     }
 }
 
@@ -141,7 +145,7 @@ class Steam extends SteamUser {
             await this.createAuthSessionTicket(1049590, async (err, sessionTicket) => {
 
                 if (err) {
-                    exit('Você precisa logar no jogo pelo menos uma vez. Quite assim que começar o Tutorial.')
+                    exit('Você precisa logar no jogo pelo menos uma vez na sua conta da Steam/ERBS.')
                 }
 
                 const erbs = new ERBS(this.#patch);
