@@ -1,0 +1,23 @@
+{
+  "name": "purin",
+  "module": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "pkg .",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "lzma": "^2.3.2",
+    "steam-user": "^5.2.0"
+  },
+  "bin": "index.js",
+  "pkg": {
+    "targets": [
+      "node18-win-x64"
+    ],
+    "assets": [
+      "node_modules/@doctormckay/steam-crypto",
+      "node_modules/lzma"
+    ]
+  }
+}
