@@ -26,7 +26,7 @@ class ERBS {
                 'X-BSER-AuthProvider': 'STEAM',
                 'Host': 'bser-rest-release.bser.io',
             },
-            body: method === 'GET' ? null : body
+            body
         })
 
         const data = await response.json()
@@ -34,7 +34,7 @@ class ERBS {
         if (data.cod !== 200) {
 
             if (data.msg === 'maintenance') {
-                return exit('ERBS atualmente está em manutenção.')
+                exit('ERBS atualmente está em manutenção.')
             }
 
             exit(data.msg)
