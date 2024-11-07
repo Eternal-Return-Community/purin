@@ -130,7 +130,7 @@ class Steam extends SteamUser {
         super({ autoRelogin: true })
 
         if (!login || !password || !patch) {
-            exit('[ERROR] -> faltando login, password ou versão do patch no arquivo config.json')
+            exit('[ERROR] -> Faltando login, password ou versão do patch no arquivo config.json')
         }
 
         this.#accountName = login;
