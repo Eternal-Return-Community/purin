@@ -2,14 +2,24 @@ const SteamUser = require('steam-user');
 const fs = require('node:fs');
 
 function loadAccount() {
-    const config = fs.readFileSync('./config.json', { encoding: 'utf-8', flag: 'r' })
-    return JSON.parse(config);
+
+    if (!fs.existsSync('./config.json')) {
+        exit('[ERROR] -> Arquivo config.json não foi encontrado.')
+    }
+
+    return JSON.parse(fs.readFileSync('./config.json', { encoding: 'utf-8', flag: 'r' }));
 }
 
 class ERBS {
 
     #token;
     #patch;
+    #coupons = ['NEWPLAYERBOOST']
+
+    #errors = {
+        1006: 'ERBS entrou em manutenção.',
+        1007: 'Versão do patch no arquivo config.json está desatualizado.'
+    }
 
     constructor(patch) {
         this.#patch = patch;
@@ -29,16 +39,9 @@ class ERBS {
             body
         })
 
-        const data = await response.json()
+        const data = await response.json();
 
-        if (data.cod !== 200) {
-
-            if (data.msg === 'maintenance') {
-                exit('ERBS atualmente está em manutenção.')
-            }
-
-            exit(data.msg)
-        }
+        if (this.#errors[data.cod]) exit(`[Server Error] -> ${this.#errors[data.cod]}`)
 
         return data.rst;
     }
@@ -55,10 +58,6 @@ class ERBS {
             "ver": this.#patch
         }))
 
-        if (response === 'INVALID_VERSION') {
-            exit(`Versão do patch do config.json está desatualizada.`)
-        }
-
         this.#token = response.sessionKey;
     }
 
@@ -66,7 +65,7 @@ class ERBS {
         const response = await this.#client('GET', '/lobby/enterRepeat/?supportLanguage=2&searchTime=0')
 
         if (response?.user?.lv >= 21) {
-            exit('Sua conta já está no nível 21+. Use uma conta nova para pode usar o script.')
+            exit('[INFO] -> Sua conta já está no nível 21+. Use uma nova conta para poder usar o script.')
         }
     }
 
@@ -78,10 +77,19 @@ class ERBS {
 
             await this.#client('POST', '/users/tutorial/result', key)
         }
-        console.log('-> Tutorial finalizado! \nRecompensas: 3 Personagens: Yuki, Hyejin e Eva, 51.680 A-coin, 7 Dias de Boost de XP, 3 Chaves, 2 Skin Data Box e 2 Research Center Data Box.\n')
+        console.log('[SUCESSO] -> Tutorial finalizado! \nRecompensas: 3 Personagens: Yuki, Hyejin e Eva, 51.680 A-coin, 7 Dias de Boost de XP, 3 Chaves, 2 Skin Data Box e 2 Research Center Data Box.\n')
+        await this.#useCoupons();
+    }
+
+    async #useCoupons() {
+        for (const coupon of this.#coupons) {
+            await this.#client('POST', '/coupon/use', coupon)
+        }
+        console.log('[SUCESSO] -> Cupons utlizados com sucesso!\n')
     }
 
     async #leveling() {
+        await this.#tutorial()
         while (true) {
             const response = await this.#client('PUT', '/battle/games/aiBattle', JSON.stringify({
                 "clv": 20,
@@ -99,17 +107,16 @@ class ERBS {
                 "rk": 1,
             }))
 
-
             if (response?.userLevel === 21) {
-                exit('-> Leveling finalizado! Level atual da conta: 21')
+                console.log('[SUCESSO] -> Leveling finalizado! Level atual da conta: 21')
+                exit('[INFO] -> O script está sendo finalizado.')
             }
         }
     }
 
     async start() {
         await this.#account()
-        await this.#tutorial()
-        await this.#leveling()
+        await this.#leveling();
     }
 }
 
@@ -123,7 +130,7 @@ class Steam extends SteamUser {
         super({ autoRelogin: true })
 
         if (!login || !password || !patch) {
-            exit('Tá faltando login, password ou patch no arquivo config.json')
+            exit('[ERROR] -> faltando login, password ou versão do patch no arquivo config.json')
         }
 
         this.#accountName = login;
@@ -145,7 +152,7 @@ class Steam extends SteamUser {
             await this.createAuthSessionTicket(1049590, async (err, sessionTicket) => {
 
                 if (err) {
-                    exit('Você precisa logar no jogo pelo menos uma vez na sua conta da Steam/ERBS.')
+                    exit('[ERROR] -> Você precisa logar no jogo pelo menos uma vez na sua conta da Steam/ERBS.')
                 }
 
                 const erbs = new ERBS(this.#patch);
