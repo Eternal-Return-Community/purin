@@ -1,4 +1,4 @@
-<img src="https://i.imgur.com/zKHlDae.gif">
+<img src="./images/irem.gif">
 
 Criei esse projetinho super rápido, provavelmente tem alguns bugs.<br>
 Altere o `config.example.json` para `config.json` e adicione seu `login e senha` da `STEAM`. Não esqueça de adicionar a versão do `PATCH ATUAL`
