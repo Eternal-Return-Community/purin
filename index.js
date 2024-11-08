@@ -85,7 +85,7 @@ class ERBS {
         for (const coupon of this.#coupons) {
             await this.#client('POST', '/coupon/use', coupon)
         }
-        console.log('[SUCESSO] -> Cupons utlizados com sucesso!\n')
+        console.log('[SUCESSO] -> Cupons utlizados com sucesso! \nRecompensas: 5.000 A-coin')
     }
 
     async #leveling() {
@@ -116,6 +116,9 @@ class ERBS {
 
     async start() {
         await this.#account()
+
+        console.log('[INFO] -> Inicilizado. Aguarde alguns minutos até que o processado seja finalizado.')
+        
         await this.#leveling();
     }
 }
