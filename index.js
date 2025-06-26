@@ -41,7 +41,7 @@ class ERBS {
                 'User-Agent': 'BestHTTP/2 v2.4.0',
                 'Content-Type': 'application/json',
                 'X-BSER-SessionKey': this.#token,
-                'X-BSER-Version': this.#patch,
+                'X-BSER-Version': this.#getPatch(),
                 'X-BSER-AuthProvider': 'STEAM',
                 'Host': 'bser-rest-release.bser.io',
             },
@@ -166,7 +166,7 @@ class Steam extends SteamUser {
                     exit('[ERROR] -> Você precisa logar no jogo pelo menos uma vez na sua conta da Steam/ERBS.')
                 }
 
-                const erbs = new ERBS(this.#patch);
+                const erbs = new ERBS();
 
                 await erbs.auth(this.#getSessionTicket(sessionTicket))
                 erbs.start()
