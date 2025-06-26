@@ -18,7 +18,8 @@ class ERBS {
 
     #errors = {
         1006: 'ERBS entrou em manutenção.',
-        1007: 'Versão do patch no arquivo config.json está desatualizado.'
+        1007: 'Versão do patch está desatualizado.',
+        1117: 'Sua conta está banida.'
     }
 
     async #getPatch() {
@@ -31,7 +32,7 @@ class ERBS {
         const minor = patchNumber.substring(1, 3);
         const patch = patchNumber.substring(3, patchNumber.length);
 
-        return `${major}.${minor}.${patch}`;
+        this.#patch = `${major}.${minor}.${patch}`;
     }
 
     async #client(method, endpoint, body) {
@@ -41,7 +42,7 @@ class ERBS {
                 'User-Agent': 'BestHTTP/2 v2.4.0',
                 'Content-Type': 'application/json',
                 'X-BSER-SessionKey': this.#token,
-                'X-BSER-Version': this.#getPatch(),
+                'X-BSER-Version': this.#patch,
                 'X-BSER-AuthProvider': 'STEAM',
                 'Host': 'bser-rest-release.bser.io',
             },
@@ -50,12 +51,16 @@ class ERBS {
 
         const data = await response.json();
 
-        if (this.#errors[data.cod]) exit(`[Server Error] -> ${this.#errors[data.cod]}`)
+        if (data.cod > 200) {
+            exit(`[Server Error] -> ${this.#errors[data.cod] ?? data.msg}`)
+        }
 
         return data.rst;
     }
 
     async auth(authorizationCode) {
+        await this.#getPatch()
+
         const response = await this.#client('POST', '/users/authenticate', JSON.stringify({
             "dlc": "pt",
             "glc": "ko",
@@ -64,7 +69,7 @@ class ERBS {
             "ap": 'STEAM',
             "idt": authorizationCode,
             "prm": { authorizationCode },
-            "ver": this.#getPatch()
+            "ver": this.#patch
         }))
 
         this.#token = response.sessionKey;
@@ -125,9 +130,7 @@ class ERBS {
 
     async start() {
         await this.#account()
-
         console.log('[INFO] -> Inicilizado. Aguarde alguns minutos até que o processado seja finalizado.')
-
         await this.#leveling();
     }
 }

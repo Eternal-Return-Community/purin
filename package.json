@@ -1,7 +1,7 @@
 {
   "name": "purin",
   "module": "index.js",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "type": "commonjs",
   "scripts": {
     "build": "pkg .",
