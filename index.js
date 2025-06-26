@@ -21,8 +21,17 @@ class ERBS {
         1007: 'Versão do patch no arquivo config.json está desatualizado.'
     }
 
-    constructor(patch) {
-        this.#patch = patch;
+    async #getPatch() {
+        const response = await fetch('https://er.dakgg.io/api/v1/character-stats')
+        const data = await response.json();
+
+        const patchNumber = String(data.meta.patch);
+
+        const major = patchNumber.substring(0, 1);
+        const minor = patchNumber.substring(1, 3);
+        const patch = patchNumber.substring(3, patchNumber.length);
+
+        return `${major}.${minor}.${patch}`;
     }
 
     async #client(method, endpoint, body) {
@@ -55,7 +64,7 @@ class ERBS {
             "ap": 'STEAM',
             "idt": authorizationCode,
             "prm": { authorizationCode },
-            "ver": this.#patch
+            "ver": this.#getPatch()
         }))
 
         this.#token = response.sessionKey;
@@ -118,7 +127,7 @@ class ERBS {
         await this.#account()
 
         console.log('[INFO] -> Inicilizado. Aguarde alguns minutos até que o processado seja finalizado.')
-        
+
         await this.#leveling();
     }
 }
@@ -129,16 +138,15 @@ class Steam extends SteamUser {
     #password;
     #patch
 
-    constructor({ login, password, patch } = account) {
+    constructor({ login, password } = account) {
         super({ autoRelogin: true })
 
-        if (!login || !password || !patch) {
-            exit('[ERROR] -> Faltando login, password ou versão do patch no arquivo config.json')
+        if (!login || !password) {
+            exit('[ERROR] -> Faltando login ou password no arquivo config.json')
         }
 
         this.#accountName = login;
         this.#password = password;
-        this.#patch = patch;
 
         this.#login()
     }

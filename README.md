@@ -1,7 +1,7 @@
 <img src="./images/irem.gif">
 
 Criei esse projetinho super rápido, provavelmente tem alguns bugs.<br>
-Altere o `config.example.json` para `config.json` e adicione seu `login e senha` da `STEAM`. Não esqueça de adicionar a versão do `PATCH ATUAL`
+Altere o `config.example.json` para `config.json` e adicione seu `login e senha` da `STEAM`.
 
 # O Que que esse Script faz?
 * Upa sua conta do lvl 1 ao 21 sem precisar logar no jogo. (Logue apenas uma vez para criar o token da conta.)
